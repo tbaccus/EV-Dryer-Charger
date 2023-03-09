@@ -1,0 +1,29 @@
+.form-switch .form-check-input:focus {
+  border-color: var(--bs-success);
+  box-shadow: 0 0 2px 2px var(--bs-success-border-subtle);
+}
+
+.form-switch .form-check-input:checked {
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28188, 220, 205, 1%29'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input {
+  border-color: var(--bs-success-border-subtle);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28117, 183, 152, 0.5%29'/%3e%3c/svg%3e");
+}
+
+.form-range::-webkit-slider-thumb {
+  background-color: var(--bs-success);
+}
+
+.form-range::-webkit-slider-thumb:active {
+  background-color: var(--bs-success-text);
+  box-shadow: 0 0 2px 2px var(--bs-success);
+}
+
+.form-range:focus::-webkit-slider-thumb {
+  background-color: var(--bs-success-text);
+  box-shadow: 0 0 2px 2px var(--bs-success);
+}
