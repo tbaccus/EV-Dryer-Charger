@@ -27,3 +27,17 @@
   background-color: var(--bs-success-text);
   box-shadow: 0 0 2px 2px var(--bs-success);
 }
+
+.form-range::-moz-range-thumb {
+  background-color: var(--bs-success);
+}
+
+.form-range::-moz-range-thumb:active {
+  background-color: var(--bs-success-text);
+  box-shadow: 0 0 2px 2px var(--bs-success);
+}
+
+.form-range:focus::-moz-range-thumb {
+  background-color: var(--bs-success-text);
+  box-shadow: 0 0 2px 2px var(--bs-success);
+}
