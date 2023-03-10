@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template, redirect
+from flask import Flask, request, render_template
 # import RPi.GPIO as gpio
 # import time
 # import math
