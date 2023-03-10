@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>QT-calculator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+</head>
+
+<body>
+  <div id="calc-container">
+    <h1>Voltage Monitor</h1>
+    <form action="{{ url_for('index') }}" method="POST">
+      <!-- <input type="number" name="qt" value="1" /> -->
+      <input type="submit" name="next" value="Next" />
+    </form>
+    <br /><br />
+    {% if QTc_result %}
+    <h2>Results</h2>
+    <p>{{QTc_result}} mV.
+    </p>
+    {% endif %}
+  </div>
+</body>
+
+</html>
