@@ -15,7 +15,7 @@
 <body>
   <div class="container">
     <div class="row pt-5 pb-4 text-center">
-      <h1 class="title text-success">EV Dryer Charger Control</h1>
+      <h1 class="title text-success"><b>EV Dryer Charger Control</b></h1>
     </div>
     <div class="row">
       <div class="col-12 d-grid text-center">
@@ -24,21 +24,23 @@
           <div id="amountChargedText">Amount charged since enabled: <output id="amountCharged">0</output>kWh</div>
         </div>
         <form class="form-control-lg text-success-emphasis" id="settingsForm" method="POST">
-          <span class="d-inline-block pe-1 text-success">Dryer</span>
-          <div class="form-check form-switch d-inline-block">
-            <input class="form-check-input" type="checkbox" role="switch" name="dryerSwitch" id="dryerSwitch" checked/>
-            <label class="form-check-label" for="dryerSwitch">Charger</label>
+          <div class="d-inline-block align-center">
+            <span class="d-inline-block pe-1 text-success-emphasis" id="dryerToggle">Dryer</span>
+            <div class="form-check form-switch d-inline-block">
+              <input class="form-check-input" type="checkbox" role="switch" name="dryerSwitch" id="dryerSwitch" checked/>
+              <label class="form-check-label text-success" for="dryerSwitch" id="chargerToggle">Charger</label>
+            </div>
           </div>
           <div class="input-group py-5 text-success-emphasis">
             <input type="checkbox" class="btn-check" id="dryerEnable" name="dryerEnable" checked autocomplete="off"/>
-            <label class="btn btn-outline-success rounded-start-2" for="dryerEnable">Enabled</label>
-            <span class="input-group-text text-success-emphasis bg-success-subtle border-success-subtle">Dryer start time</span>
+            <label class="btn btn-outline-success rounded-start-2" id="dryerEnableLabel" for="dryerEnable">Disable</label>
+            <span class="input-group-text text-success-emphasis border-success-subtle" style="background-color: var(--bs-success-bg-subtle);" id="dryerStartTimeLabel">Dryer start time</span>
             <input type="time" class="form-control text-success-emphasis border-success-subtle" aria-label="Dryer start time" name="dryerStartTime" id="dryerStartTime" value="11:00"/>
           </div>
           <div class="input-group pb-5">
             <input type="checkbox" class="btn-check" id="chargerEnable" name="chargerEnable" checked autocomplete="off"/>
-            <label class="btn btn-outline-success rounded-start-2" for="chargerEnable">Enabled</label>
-            <span class="input-group-text text-success-emphasis bg-success-subtle border-success-subtle">Charger start time</span>
+            <label class="btn btn-outline-success rounded-start-2" id="chargerEnableLabel" for="chargerEnable">Disable</label>
+            <span class="input-group-text text-success-emphasis border-success-subtle text-center" style="background-color: var(--bs-success-bg-subtle);" id="chargerStartTimeLabel">Charger start time</span>
             <input type="time" class="form-control text-success-emphasis border-success-subtle" aria-label="Charger start time" name="chargerStartTime" id="chargerStartTime" value="18:00"/>
           </div>
           <div class="input-group pb-5">
@@ -54,6 +56,7 @@
   </div>
   <script src="{{ url_for('static', filename='slider.js') }}"></script>
   <script src="{{ url_for('static', filename='submit.js') }}"></script>
+  <script src="{{ url_for('static', filename='toggles.js') }}"></script>
 </body>
 
 </html>
