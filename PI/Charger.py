@@ -58,10 +58,10 @@ STATE = EV_State.UNKNOWN
 
 def init_charger():
     if(SIDE is Charge_Side.CAR_SIDE):
-    	print("Initializing car charging peripherals...")
-    	GPIO.output(PILOT_PIN, True)
+        print("Initializing car charging peripherals...")
+        GPIO.output(PILOT_PIN, True)
     elif(SIDE is Charge_Side.DRYER_SIDE):
-    	print("Initializing dryer side peripherals...")
+        print("Initializing dryer side peripherals...")
         ### don't we need to make PILOT_PIN False in this case? ###
         #GPIO.output(PILOT_PIN, False)
 
@@ -70,17 +70,17 @@ def enable_relay(side):
     GPIO.output(ENABLE_DRYER_PIN, False)
     sleep(1)
     if(SIDE is Charge_Side.CAR_SIDE):
-    	print("Car side relay enabled.")
-    	GPIO.output(ENABLE_CAR_PIN, True)
-    	GPIO.output(ENABLE_DRYER_PIN, False)
+        print("Car side relay enabled.")
+        GPIO.output(ENABLE_CAR_PIN, True)
+        GPIO.output(ENABLE_DRYER_PIN, False)
     elif(SIDE is Charge_Side.DRYER_SIDE):
-    	print("Dryer side relay enabled.")
-    	GPIO.output(ENABLE_CAR_PIN, False)
-    	GPIO.output(ENABLE_DRYER_PIN, True)
+        print("Dryer side relay enabled.")
+        GPIO.output(ENABLE_CAR_PIN, False)
+        GPIO.output(ENABLE_DRYER_PIN, True)
     elif(SIDE is Charge_Side.NEITHER):
-    	print("Both sides disabled.")
-    	GPIO.output(ENABLE_CAR_PIN, False)
-    	GPIO.output(ENABLE_DRYER_PIN, False)
+        print("Both sides disabled.")
+        GPIO.output(ENABLE_CAR_PIN, False)
+        GPIO.output(ENABLE_DRYER_PIN, False)
 
 def read_pilot_state():
     readings = []
@@ -95,7 +95,7 @@ def read_pilot_state():
     diff = []
     states = [state for state in EV_State]
     for state in EV_State:
-    	diff.append(abs(Vpwm - int(state)))
+        diff.append(abs(Vpwm - int(state)))
 
     ### why min(diff)? Is there a chance we subtract a smaller from a larger number? ###
     ### example: min(diff) = 3 - 6 = -3 ###
