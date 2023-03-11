@@ -58,27 +58,27 @@ STATE = EV_State.UNKNOWN
 
 def init_charger():
     if(SIDE is Charge_Side.CAR_SIDE):
-    	print("Initializing car chargin peripherals...")
-    	GPIO.output(PILOT_PIN, True)
+        print("Initializing car chargin peripherals...")
+        GPIO.output(PILOT_PIN, True)
     elif(SIDE is Charge_Side.DRYER_SIDE):
-    	print("Initializing dryer side peripherals...")
+        print("Initializing dryer side peripherals...")
 
 def enable_relay(side):
     GPIO.output(ENABLE_CAR_PIN, False)
     GPIO.output(ENABLE_DRYER_PIN, False)
     sleep(1)
     if(side is Charge_Side.CAR_SIDE):
-    	print("Car side relay enabled.")
-    	GPIO.output(ENABLE_CAR_PIN, True)
-    	GPIO.output(ENABLE_DRYER_PIN, False)
+        print("Car side relay enabled.")
+        GPIO.output(ENABLE_CAR_PIN, True)
+        GPIO.output(ENABLE_DRYER_PIN, False)
     elif(side is Charge_Side.DRYER_SIDE):
-    	print("Dryer side relay enabled.")
-    	GPIO.output(ENABLE_CAR_PIN, False)
-    	GPIO.output(ENABLE_DRYER_PIN, True)
+        print("Dryer side relay enabled.")
+        GPIO.output(ENABLE_CAR_PIN, False)
+        GPIO.output(ENABLE_DRYER_PIN, True)
     elif(side is Charge_Side.NEITHER):
-    	print("Both sides disabled.")
-    	GPIO.output(ENABLE_CAR_PIN, False)
-    	GPIO.output(ENABLE_DRYER_PIN, False)
+        print("Both sides disabled.")
+        GPIO.output(ENABLE_CAR_PIN, False)
+        GPIO.output(ENABLE_DRYER_PIN, False)
 
 def read_pilot_state():
     readings = []
@@ -93,7 +93,7 @@ def read_pilot_state():
     diff = []
     states = [state for state in EV_State]
     for state in EV_State:
-    	diff.append(abs(Vpwm - int(state)))
+        diff.append(abs(Vpwm - int(state)))
 
     curr_state = states[diff.index(min(diff))]
 
