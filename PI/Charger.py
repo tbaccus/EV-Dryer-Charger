@@ -62,8 +62,6 @@ def init_charger():
         GPIO.output(PILOT_PIN, True)
     elif(SIDE is Charge_Side.DRYER_SIDE):
         print("Initializing dryer side peripherals...")
-        ### don't we need to make PILOT_PIN False in this case? ###
-        #GPIO.output(PILOT_PIN, False)
 
 def enable_relay(side):
     GPIO.output(ENABLE_CAR_PIN, False)
@@ -97,16 +95,11 @@ def read_pilot_state():
     for state in EV_State:
         diff.append(abs(Vpwm - int(state)))
 
-    ### why min(diff)? Is there a chance we subtract a smaller from a larger number? ###
-    ### example: min(diff) = 3 - 6 = -3 ###
     curr_state = states[diff.index(min(diff))]
 
     return curr_state
 
 def test_side_enabled():
-    ### does "return [case 1] if... else [case 2] if... else [case 3]" even work? ###
-    ### I'm not sure if it works if there's two else cases ###
-    ### Also, is this for safety checks on boot? or part of the constant checking in the future multi-threading? ###
     return Charge_Side.CAR_SIDE if GPIO.input(RELAY1_TEST) else Charge_Side.DRYER_SIDE if GPIO.input(RELAY2_TEST) else Charge_Side.NEITHER
 
 def exit():
