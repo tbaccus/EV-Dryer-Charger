@@ -60,6 +60,7 @@ class Charging_State(IntEnum):
 CHARGING_STATE = Charging_State.CHARGING
 SIDE = Charge_Side.CAR_SIDE
 STATE = EV_State.UNKNOWN
+THREAD_LOCK = threading.lock()
 
 
 
@@ -159,11 +160,14 @@ def enableCarSide():
             exit()
 
 def callChargingSafetyCheckThreads():
-    pass
+    global THREAD_LOCK
+
+    
 
 # This function initiates the pilot signal 
 # and waits for a ready signal from the car.
 def initiatePilotReadyWait():
+    global STATE
     GPIO.output(PILOT_PIN, True)
     while(STATE is not EV_State.CONNECTED):
         print("Waiting for EV to be connected...")
@@ -172,12 +176,16 @@ def initiatePilotReadyWait():
 
 def initiateCharging():
     enable_relay(Charge_Side.CAR_SIDE)
+    
 
 def displayError(error):
     pass
 
 def setChargingState(state):
-    pass
+    global CHARGING_STATE, THREAD_LOCK
+    THREAD_LOCK.acquire()
+    CHARGING_STATE = state
+    THREAD_LOCK.release()
 
 def overCurrentTest():
     max_current = 100000000 #will change this later
