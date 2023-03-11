@@ -8,6 +8,8 @@ from time import sleep
 import RPi.GPIO as GPIO
 from enum import IntEnum
 import struct
+import threading
+from threading import Thread
 
 #pin defines
 PILOT_PIN = 13
@@ -44,7 +46,7 @@ class Charge_Side(IntEnum):
     NEITHER = 3
 
 class EV_State(IntEnum):
-    _order_ = 'ERROR VENT EV_CHARGE CONNECTED NOT_CONNECTED UNKNOWN'
+    _order_ = 'SHUTOFF VENT EV_CHARGE CONNECTED NOT_CONNECTED ERROR'
     SHUTOFF = 0
     VENT = 3
     EV_CHARGE = 6
@@ -76,7 +78,7 @@ def enable_relay(side):
     SIDE = side
     GPIO.output(ENABLE_CAR_PIN, False)
     GPIO.output(ENABLE_DRYER_PIN, False)
-    sleep(1)
+    sleep(0.5)
     if(SIDE is Charge_Side.CAR_SIDE):
         print("Car side relay enabled.")
         GPIO.output(ENABLE_CAR_PIN, True)
@@ -118,15 +120,14 @@ def exit():
     GPIO.cleanup()
 atexit.register(exit)
 
-PILOT.start(50)
-enable_relay(Charge_Side.CAR_SIDE)
-sleep(1)
-while(1):
-    print(read_pilot_state())
-    sleep(1)
-    print(test_side_enabled())
-    print("CURRENT: ", read_current(), " A")
-
+# PILOT.start(50)
+# enable_relay(Charge_Side.CAR_SIDE)
+# sleep(1)
+# while(1):
+#     print(read_pilot_state())
+#     sleep(1)
+#     print(test_side_enabled())
+#     print("CURRENT: ", read_current(), " A")
 
 def enableCharging():
     stuckRelayCheck()
@@ -137,18 +138,16 @@ def enableCharging():
             enableCarSide()
 
 def stuckRelayCheck():
-    disablePowerRelays()
-    while(isRelayStuck()): pass
-
-def disablePowerRelays():
-    pass
-
-def isRelayStuck():
-    pass     
+    enable_relay(Charge_Side.NEITHER)
+    print("Stuck relay test...")
+    while(test_side_enabled() is not Charge_Side.NEITHER): 
+        print("Relay is stuck or ground fault has occured.")
+        sleep(0.5) 
 
 def enableDryerSide():
     #switch to dryer side
-    while(SIDE is Charge_Side.DRYER_SIDE): pass
+    PILOT.stop()
+    enable_relay(Charge_Side.DRYER_SIDE)
 
 def enableCarSide():
     initiatePilotReadyWait()
@@ -165,10 +164,14 @@ def callChargingSafetyCheckThreads():
 # This function initiates the pilot signal 
 # and waits for a ready signal from the car.
 def initiatePilotReadyWait():
-    pass
+    GPIO.output(PILOT_PIN, True)
+    while(STATE is not EV_State.CONNECTED):
+        print("Waiting for EV to be connected...")
+        sleep(0.5)
+    PILOT.start(20)
 
 def initiateCharging():
-    pass
+    enable_relay(Charge_Side.CAR_SIDE)
 
 def displayError(error):
     pass
