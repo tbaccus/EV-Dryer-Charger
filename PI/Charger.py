@@ -22,6 +22,7 @@ ads_read = ADS.ADS1015(i2c, address = 0x48, data_rate = 3300, mode = ADS.Mode.CO
 #ads_read = ADS.ADS1115(i2c, address = 0x49, data_rate = 860, mode = ADS.Mode.CONTINUOUS)
 ads_read.gain = 1
 PILOT_READ = AnalogIn(ads_read, ADS.P0)
+CURRENT_READ = AnalogIn(ads_read, ADS.P1)
 #i2c = smbus.SMBus(1)
 
 GPIO.setmode(GPIO.BCM)
@@ -58,27 +59,31 @@ STATE = EV_State.UNKNOWN
 
 def init_charger():
     if(SIDE is Charge_Side.CAR_SIDE):
-    	print("Initializing car chargin peripherals...")
-    	GPIO.output(PILOT_PIN, True)
+        print("Initializing car charging peripherals...")
+        GPIO.output(PILOT_PIN, True)
     elif(SIDE is Charge_Side.DRYER_SIDE):
-    	print("Initializing dryer side peripherals...")
+        print("Initializing dryer side peripherals...")
+
+def read_current():
+    return (CURRENT_READ.voltage/5)*20
+
 
 def enable_relay(side):
     GPIO.output(ENABLE_CAR_PIN, False)
     GPIO.output(ENABLE_DRYER_PIN, False)
     sleep(1)
-    if(side is Charge_Side.CAR_SIDE):
-    	print("Car side relay enabled.")
-    	GPIO.output(ENABLE_CAR_PIN, True)
-    	GPIO.output(ENABLE_DRYER_PIN, False)
-    elif(side is Charge_Side.DRYER_SIDE):
-    	print("Dryer side relay enabled.")
-    	GPIO.output(ENABLE_CAR_PIN, False)
-    	GPIO.output(ENABLE_DRYER_PIN, True)
-    elif(side is Charge_Side.NEITHER):
-    	print("Both sides disabled.")
-    	GPIO.output(ENABLE_CAR_PIN, False)
-    	GPIO.output(ENABLE_DRYER_PIN, False)
+    if(SIDE is Charge_Side.CAR_SIDE):
+        print("Car side relay enabled.")
+        GPIO.output(ENABLE_CAR_PIN, True)
+        GPIO.output(ENABLE_DRYER_PIN, False)
+    elif(SIDE is Charge_Side.DRYER_SIDE):
+        print("Dryer side relay enabled.")
+        GPIO.output(ENABLE_CAR_PIN, False)
+        GPIO.output(ENABLE_DRYER_PIN, True)
+    elif(SIDE is Charge_Side.NEITHER):
+        print("Both sides disabled.")
+        GPIO.output(ENABLE_CAR_PIN, False)
+        GPIO.output(ENABLE_DRYER_PIN, False)
 
 def read_pilot_state():
     readings = []
@@ -93,7 +98,7 @@ def read_pilot_state():
     diff = []
     states = [state for state in EV_State]
     for state in EV_State:
-    	diff.append(abs(Vpwm - int(state)))
+        diff.append(abs(Vpwm - int(state)))
 
     curr_state = states[diff.index(min(diff))]
 
@@ -115,3 +120,45 @@ while(1):
     print(read_pilot_state())
     sleep(1)
     print(test_side_enabled())
+    print("CURRENT: ", read_current(), " A")
+
+
+class Error_State(IntEnum):
+    PASS, OVER_CURRENT, RELAY_STATE, ERROR_CAR_STATE, VENT_CAR_STATE, DRYER_ENABLED = range(1, 7)
+
+CHARGING_SAFETY_STATE = Error_State.PASS
+
+def DoSafetyChecks(side):
+    stuckRelayCheck()
+    if(side == "dryer"): enableDryerSide
+    elif(side == "car"):
+        initiatePilotReadyWait()
+        initiateCharging()
+        callChargingSafetyCheckThreads()
+        while(CHARGING_SAFETY_STATE):
+            if(CHARGING_SAFETY_STATE != CHARGING_SAFETY_STATE.PASS):
+                pass
+
+def stuckRelayCheck():
+    disablePowerRelays()
+    while(isRelayStuck()): pass
+
+def disablePowerRelays():
+    pass
+
+def isRelayStuck():
+    pass     
+
+def enableDryerSide():
+    pass
+
+def callChargingSafetyCheckThreads():
+    pass
+
+# This function initiates the pilot signal 
+# and waits for a ready signal from the car.
+def initiatePilotReadyWait():
+    pass
+
+def initiateCharging():
+    pass
