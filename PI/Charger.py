@@ -67,6 +67,7 @@ def init_charger():
 def read_current():
     return (CURRENT_READ.voltage/5)*20
 
+
 def enable_relay(side):
     GPIO.output(ENABLE_CAR_PIN, False)
     GPIO.output(ENABLE_DRYER_PIN, False)
@@ -120,3 +121,44 @@ while(1):
     sleep(1)
     print(test_side_enabled())
     print("CURRENT: ", read_current(), " A")
+
+
+class Error_State(IntEnum):
+    PASS, OVER_CURRENT, RELAY_STATE, ERROR_CAR_STATE, VENT_CAR_STATE, DRYER_ENABLED = range(1, 7)
+
+CHARGING_SAFETY_STATE = Error_State.PASS
+
+def DoSafetyChecks(side):
+    stuckRelayCheck()
+    if(side == "dryer"): enableDryerSide
+    elif(side == "car"):
+        initiatePilotReadyWait()
+        initiateCharging()
+        callChargingSafetyCheckThreads()
+        while(CHARGING_SAFETY_STATE):
+            if(CHARGING_SAFETY_STATE != CHARGING_SAFETY_STATE.PASS):
+                pass
+
+def stuckRelayCheck():
+    disablePowerRelays()
+    while(isRelayStuck()): pass
+
+def disablePowerRelays():
+    pass
+
+def isRelayStuck():
+    pass     
+
+def enableDryerSide():
+    pass
+
+def callChargingSafetyCheckThreads():
+    pass
+
+# This function initiates the pilot signal 
+# and waits for a ready signal from the car.
+def initiatePilotReadyWait():
+    pass
+
+def initiateCharging():
+    pass
