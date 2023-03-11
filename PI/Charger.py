@@ -51,6 +51,10 @@ class EV_State(IntEnum):
     NOT_CONNECTED = 12
     UNKNOWN = -1
 
+class Charging_State(IntEnum):
+    CHARGING, OVER_CURRENT, RELAY_STATE, ERROR_CAR_STATE, VENT_CAR_STATE, DRYER_ENABLED = range(1, 7)
+
+CHARGING_STATE = Charging_State.CHARGING
 SIDE = Charge_Side.CAR_SIDE
 STATE = EV_State.UNKNOWN
 
@@ -117,21 +121,13 @@ while(1):
     print(test_side_enabled())
 
 
-class Error_State(IntEnum):
-    PASS, OVER_CURRENT, RELAY_STATE, ERROR_CAR_STATE, VENT_CAR_STATE, DRYER_ENABLED = range(1, 7)
-
-CHARGING_SAFETY_STATE = Error_State.PASS
-
-def DoSafetyChecks(side):
+def enableCharging():
     stuckRelayCheck()
-    if(side == "dryer"): enableDryerSide
-    elif(side == "car"):
-        initiatePilotReadyWait()
-        initiateCharging()
-        callChargingSafetyCheckThreads()
-        while(CHARGING_SAFETY_STATE):
-            if(CHARGING_SAFETY_STATE != CHARGING_SAFETY_STATE.PASS):
-                pass
+    while(True):
+        if(SIDE == Charge_Side.DRYER_SIDE): 
+            enableDryerSide()
+        elif(SIDE == Charge_Side.CAR_SIDE):
+            enableCarSide()
 
 def stuckRelayCheck():
     disablePowerRelays()
@@ -144,7 +140,17 @@ def isRelayStuck():
     pass     
 
 def enableDryerSide():
-    pass
+    #switch to dryer side
+    while(SIDE == Charge_Side.DRYER_SIDE): pass
+
+def enableCarSide():
+    initiatePilotReadyWait()
+    initiateCharging() #<-switch to car side
+    callChargingSafetyCheckThreads()
+    while(SIDE == Charge_Side.CAR_SIDE):
+        if(CHARGING_STATE != Charging_State.CHARGING):
+            displayError(CHARGING_STATE)
+            exit()
 
 def callChargingSafetyCheckThreads():
     pass
@@ -155,4 +161,7 @@ def initiatePilotReadyWait():
     pass
 
 def initiateCharging():
+    pass
+
+def displayError(error):
     pass
