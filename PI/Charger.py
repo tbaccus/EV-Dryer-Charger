@@ -65,7 +65,7 @@ def init_charger():
     	print("Initializing dryer side peripherals...")
 
 def read_current():
-    return (CURRENT_READ.voltage/5)*50
+    return (CURRENT_READ.voltage/5)*20
 
 def enable_relay(side):
     GPIO.output(ENABLE_CAR_PIN, False)
