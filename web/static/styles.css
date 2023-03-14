@@ -67,12 +67,6 @@ input[type="time"]:focus {
   box-shadow: 0 0 0 .25rem rgba(var(--bs-success-rgb), 0.25);
 }
 
-input::selection {
-  border-color: var(--bs-success);
-  box-shadow: 0 0 0 .25rem rgba(var(--bs-success-rgb), 0.25);
-  background: var(--bs-success-border-subtle);
-}
-
 #dryerEnableLabel,
 #chargerEnableLabel {
   width: 9ch !important;
