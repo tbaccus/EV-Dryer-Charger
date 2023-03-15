@@ -63,14 +63,12 @@ SIDE = Charge_Side.CAR_SIDE
 STATE = EV_State.UNKNOWN
 THREAD_LOCK = threading.lock()
 
-
-
-def init_charger():
-    if(SIDE is Charge_Side.CAR_SIDE):
-        print("Initializing car charging peripherals...")
-        GPIO.output(PILOT_PIN, True)
-    elif(SIDE is Charge_Side.DRYER_SIDE):
-        print("Initializing dryer side peripherals...")
+# def init_charger():
+#     if(SIDE is Charge_Side.CAR_SIDE):
+#         print("Initializing car charging peripherals...")
+#         GPIO.output(PILOT_PIN, True)
+#     elif(SIDE is Charge_Side.DRYER_SIDE):
+#         print("Initializing dryer side peripherals...")
 
 def read_current():
     return (CURRENT_READ.voltage/5)*20
