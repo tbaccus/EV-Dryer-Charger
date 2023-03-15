@@ -10,7 +10,6 @@ from enum import IntEnum
 import struct
 import threading
 from threading import Thread
-from threading import Lock
 
 #pin defines
 PILOT_PIN = 13
@@ -56,7 +55,7 @@ class EV_State(IntEnum):
     ERROR = -1
 
 class Charging_State(IntEnum):
-    CHARGING, OVER_CURRENT, RELAY_FAULT, SHUTOFF_CAR_STATE, ERROR_CAR_STATE, VENT_CAR_STATE = range(1, 7)
+    CHARGING, OVER_CURRENT, RELAY_STATE, SHUTOFF_CAR_STATE, ERROR_CAR_STATE, VENT_CAR_STATE, DRYER_ENABLED = range(1, 8)
 
 CHARGING_STATE = Charging_State.CHARGING
 SIDE = Charge_Side.CAR_SIDE
@@ -118,7 +117,6 @@ def test_side_enabled():
 
 def exit():
     print("EXITED")
-    haultCharge()
     enable_relay(Charge_Side.NEITHER)
     GPIO.cleanup()
 atexit.register(exit)
@@ -140,12 +138,6 @@ def enableCharging():
         elif(SIDE is Charge_Side.CAR_SIDE):
             enableCarSide()
 
-def haultCharge():
-    PILOT.stop()
-    GPIO.output(PILOT_PIN, False)
-    sleep(1)
-
-
 def stuckRelayCheck():
     enable_relay(Charge_Side.NEITHER)
     print("Stuck relay test...")
@@ -155,44 +147,27 @@ def stuckRelayCheck():
 
 def enableDryerSide():
     #switch to dryer side
-    haultCharge()
+    PILOT.stop()
     enable_relay(Charge_Side.DRYER_SIDE)
 
 def enableCarSide():
-    global CHARGING_STATE
     initiatePilotReadyWait()
     initiateCharging() #<-switch to car side
     callChargingSafetyCheckThreads()
     while(SIDE is Charge_Side.CAR_SIDE):
-        if(CHARGING_STATE is Charging_State.OVER_CURRENT and SIDE is Charge_Side.CAR_SIDE):
-            haultCharge()
-            enable_relay(Charge_Side.NEITHER)
-            sleep(300)
-            initiatePilotReadyWait()
-            initiateCharging()
-        if(CHARGING_STATE is not Charging_State.CHARGING and SIDE is Charge_Side.CAR_SIDE):
-            print("Charging state haulted due to fault: ", CHARGING_STATE)
-            enableDryerSide()
-            break
+        if(CHARGING_STATE is not Charging_State.CHARGING and CHARGING_STATE is not Charging_State.OVER_CURRENT):
+            displayError(CHARGING_STATE)
+            exit()
 
 def callChargingSafetyCheckThreads():
-    current_thread = Thread(target = overCurrentTest)
-    car_state_thread = Thread(target = carStateTest)
-    relay_state_thread = Thread(target = relayStateBadGroundTest)
-    current_thread.run()
-    car_state_thread.run()
-    relay_state_thread.run()
+    global THREAD_LOCK
 
-
-def setChargingState(state):
-    global CHARGING_STATE, THREAD_LOCK
-    THREAD_LOCK.acquire()
-    CHARGING_STATE = state
-    THREAD_LOCK.release()
+    
 
 # This function initiates the pilot signal 
 # and waits for a ready signal from the car.
 def initiatePilotReadyWait():
+    global STATE
     GPIO.output(PILOT_PIN, True)
     while(STATE is not EV_State.CONNECTED):
         print("Waiting for EV to be connected...")
@@ -201,28 +176,39 @@ def initiatePilotReadyWait():
 
 def initiateCharging():
     enable_relay(Charge_Side.CAR_SIDE)
+    
+
+def displayError(error):
+    pass
+
+def setChargingState(state):
+    global CHARGING_STATE, THREAD_LOCK
+    THREAD_LOCK.acquire()
+    CHARGING_STATE = state
+    THREAD_LOCK.release()
 
 def overCurrentTest():
-    global SIDE
-    sleep(0.5)
-    while(SIDE = Charge_Side.CAR_SIDE):
-        if(read_current() >= 12):
-            setChargingState(Charging_State.OVER_CURRENT)
-            
+    max_current = 100000000 #will change this later
+    while(read_current() > max_current):
+        if(SIDE is Charge_Side.CAR_SIDE):
+            enable_relay(Charge_Side.NEITHER)
+        displayError(Charging_State.OVER_CURRENT)
+        sleep(300)
+    enable_relay(Charge_Side.CAR_SIDE)
 
 def relayStateBadGroundTest():
-    global SIDE
-    while(SIDE = Charge_Side.CAR_SIDE):
-        if(test_side_enabled() is not Charge_Side.CAR_SIDE): #relay state error or badground
-            setChargingState(Charging_State.RELAY_FAULT)
+    if(False): #relay state error or badground
+        setChargingState(Charging_State.RELAY_STATE)
 
 def carStateTest():
-    global SIDE
-    while(SIDE = Charge_Side.CAR_SIDE):
-        car_state = read_pilot_state()
-        if(car_state is EV_State.ERROR):
-            setChargingState(Charging_State.ERROR_CAR_STATE)
-        if(car_state is EV_State.SHUTOFF):
-            setChargingState(Charging_State.SHUTOFF_CAR_STATE)
-        if(car_state is EV_State.VENT):
-            setChargingState(Charging_State.VENT_CAR_STATE)
+    car_state = read_pilot_state()
+    if(car_state is EV_State.ERROR):
+        setChargingState(Charging_State.ERROR_CAR_STATE)
+    if(car_state is EV_State.SHUTOFF):
+        setChargingState(Charging_State.SHUTOFF_CAR_STATE)
+    if(car_state is EV_State.VENT):
+        setChargingState(Charging_State.VENT_CAR_STATE)
+
+def dryerDisableTest():
+    if(test_side_enabled() is Charge_Side.DRYER_SIDE): #dryer is enabled
+        setChargingState(Charging_State.DRYER_ENABLED)
