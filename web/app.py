@@ -1,9 +1,15 @@
 from flask import Flask, request, render_template
-# import RPi.GPIO as gpio
-# import time
+from apscheduler.schedulers.sync import Scheduler
+from apscheduler.triggers.interval import IntervalTrigger
+import RPi.GPIO as GPIO
+import time
 # import math
-# import sys
-# import os
+import sys
+import os
+import threading
+
+sys.path.insert(1, "../PI")
+import Charger
 
 # sys.path.append('../')
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
@@ -34,6 +40,17 @@ def index():
 
 def currentOutput(form):
     out = request.form['currentRange']
+    print(request.form)
+    #GPIO.output(Charger.PILOT_PIN, True)
+    #Charger.PILOT.start(50)
+    if (request.form['dryerSwitch'] == 'true'):
+        Charger.SIDE = Charger.Charge_Side.CAR_SIDE
+    else:
+        Charger.SIDE = Charger.Charge_Side.DRYER_SIDE
+
+    # scheduler = Scheduler()
+    # scheduler.add_schedule(index, IntervalTrigger(seconds=1), id="test")
+    # scheduler.start_in_background()
     # ads1115.set_addr_ADS1115(0x48)
     # ads1115.set_gain(ADS1115_REG_CONFIG_PGA_6_144V)
     # adc0 = ads1115.read_voltage(0)
@@ -41,6 +58,19 @@ def currentOutput(form):
     # return (adc0['r'])
     return out
 
+def test():
+    print("hi")
 
 if __name__ == "__main__":
+    Charger.SIDE = Charger.Charge_Side.CAR_SIDE
+    t1 = threading.Thread(target=Charger.enableCharging)
+    t1.start()
     app.run(host='0.0.0.0', port=80, debug=True)
+    # t1 = threading.Thread(target=test2)
+    # t2 = threading.Thread(target=test)
+
+    # t1.start()
+    # t2.start()
+
+    # t1.join()
+    # t2.join()

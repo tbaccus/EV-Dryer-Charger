@@ -6,7 +6,7 @@ $(document).on('submit', '#settingsForm', function (e) {
     type: 'POST',
     url: '/',
     data: {
-      dryerSwitch: $("#dryerSwitch").val(),
+      dryerSwitch: $("#dryerSwitch").is(":checked"),
       dryerEnable: $("#dryerEnable").val(),
       dryerStartTime: $("#dryerStartTime").val(),
       chargerEnable: $("#chargerEnable").val(),
