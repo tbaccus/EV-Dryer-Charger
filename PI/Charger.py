@@ -47,13 +47,13 @@ class Charge_Side(IntEnum):
     NEITHER = 3
 
 class EV_State(IntEnum):
-    _order_ = 'ERROR VENT EV_CHARGE CONNECTED NOT_CONNECTED UNKNOWN'
-    ERROR = 0
+    _order_ = 'SHUTOFF VENT EV_CHARGE CONNECTED NOT_CONNECTED ERROR'
+    SHUTOFF = 0
     VENT = 3
     EV_CHARGE = 6
     CONNECTED = 9
     NOT_CONNECTED = 12
-    UNKNOWN = -1
+    ERROR = -1
 
 class Charging_State(IntEnum):
     CHARGING, OVER_CURRENT, RELAY_FAULT, SHUTOFF_CAR_STATE, ERROR_CAR_STATE, VENT_CAR_STATE, NOT_CONNECTED = range(1, 8)
@@ -73,8 +73,9 @@ THREAD_LOCK = threading.Lock()
 def read_current():
     return (CURRENT_READ.voltage/5)*20
 
-
 def enable_relay(side):
+    global SIDE
+    SIDE = side
     GPIO.output(ENABLE_CAR_PIN, False)
     GPIO.output(ENABLE_DRYER_PIN, False)
     sleep(0.25)
@@ -120,22 +121,16 @@ def exit():
     GPIO.cleanup()
 atexit.register(exit)
 
-PILOT.start(50)
-enable_relay(Charge_Side.CAR_SIDE)
-sleep(1)
-while(1):
-    print(read_pilot_state())
-    sleep(1)
-    print(test_side_enabled())
-    print("CURRENT: ", read_current(), " A")
+# PILOT.start(50)
+# enable_relay(Charge_Side.CAR_SIDE)
+# sleep(1)
+# while(1):
+#     print(read_pilot_state())
+#     sleep(1)
+#     print(test_side_enabled())
+#     print("CURRENT: ", read_current(), " A")
 
-
-class Error_State(IntEnum):
-    PASS, OVER_CURRENT, RELAY_STATE, ERROR_CAR_STATE, VENT_CAR_STATE, DRYER_ENABLED = range(1, 7)
-
-CHARGING_SAFETY_STATE = Error_State.PASS
-
-def DoSafetyChecks(side):
+def enableCharging():
     stuckRelayCheck()
     while(True):
         if(SIDE is Charge_Side.DRYER_SIDE): 
@@ -152,14 +147,11 @@ def haultCharge():
 
 
 def stuckRelayCheck():
-    disablePowerRelays()
-    while(isRelayStuck()): pass
-
-def disablePowerRelays():
-    pass
-
-def isRelayStuck():
-    pass     
+    enable_relay(Charge_Side.NEITHER)
+    print("Stuck relay test...")
+    while(test_side_enabled() is not Charge_Side.NEITHER): 
+        print("Relay is stuck or ground fault has occured.")
+        sleep(0.5) 
 
 def enableDryerSide():
     #switch to dryer side
