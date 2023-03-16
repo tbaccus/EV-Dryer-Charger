@@ -44,9 +44,11 @@ def currentOutput(form):
     #GPIO.output(Charger.PILOT_PIN, True)
     #Charger.PILOT.start(50)
     if (request.form['dryerSwitch'] == 'true'):
-        Charger.SIDE = Charger.Charge_Side.CAR_SIDE
+        if (Charger.SIDE != Charger.Charge_Side.CAR_SIDE):
+            Charger.SIDE = Charger.Charge_Side.CAR_SIDE
     else:
-        Charger.SIDE = Charger.Charge_Side.DRYER_SIDE
+        if (Charger.SIDE != Charger.Charge_Side.DRYER_SIDE):
+            Charger.SIDE = Charger.Charge_Side.DRYER_SIDE
 
     # scheduler = Scheduler()
     # scheduler.add_schedule(index, IntervalTrigger(seconds=1), id="test")
